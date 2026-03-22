@@ -4,5 +4,9 @@ __pycache__/
 backend/cache/
 frontend/.next/
 frontend/node_modules/
+backend/*.log
+backend/*.err
+frontend/*.log
+frontend/*.err
 .env
 .DS_Store
