@@ -1,0 +1,25 @@
+{
+  "name": "algo-trading-bot-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.25",
+    "plotly.js-dist-min": "2.35.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-plotly.js": "2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.14",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/react-plotly.js": "2.6.3",
+    "typescript": "5.8.2"
+  }
+}
