@@ -89,6 +89,7 @@ class LivePaperTradingService:
             self.poll_interval_seconds = poll_interval_seconds
             self.latest_price = None
             self.last_update = None
+            await self._refresh_price()
             self._task = asyncio.create_task(self._poll_prices(), name=f"live-paper-{self.symbol}")
         return self.status()
 
@@ -147,21 +148,14 @@ class LivePaperTradingService:
         assert self.provider is not None
         while True:
             try:
-                price, timestamp = await asyncio.to_thread(
-                    self.market_data_service.get_live_price,
-                    self.symbol,
-                    self.provider,
-                )
-                self.latest_price = price
-                self.last_update = timestamp
+                await self._refresh_price()
                 snapshot = self._build_snapshot()
-                self.portfolio_service.update_snapshot(snapshot)
                 await self.manager.broadcast_json(
                     {
                         "type": "price_tick",
                         "symbol": self.symbol,
-                        "price": price,
-                        "timestamp": timestamp.isoformat(),
+                        "price": self.latest_price,
+                        "timestamp": self.last_update.isoformat() if self.last_update else None,
                         "portfolio": snapshot.model_dump(mode="json"),
                         "status": self.status().model_dump(mode="json"),
                     }
@@ -169,3 +163,16 @@ class LivePaperTradingService:
             except Exception as exc:
                 await self.manager.broadcast_json({"type": "error", "message": str(exc)})
             await asyncio.sleep(self.poll_interval_seconds)
+
+    async def _refresh_price(self) -> None:
+        assert self.symbol is not None
+        assert self.provider is not None
+        price, timestamp = await asyncio.to_thread(
+            self.market_data_service.get_live_price,
+            self.symbol,
+            self.provider,
+        )
+        self.latest_price = price
+        self.last_update = timestamp
+        snapshot = self._build_snapshot()
+        self.portfolio_service.update_snapshot(snapshot)

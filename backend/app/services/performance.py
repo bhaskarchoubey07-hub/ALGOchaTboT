@@ -20,7 +20,7 @@ def calculate_metrics(equity_curve: pd.Series, trade_pnls: list[float], risk_fre
     losses = [abs(pnl) for pnl in trade_pnls if pnl < 0]
     closed_trades = len([pnl for pnl in trade_pnls if pnl != 0])
     win_rate = float(len(wins) / closed_trades) if closed_trades else 0.0
-    profit_factor = float(sum(wins) / sum(losses)) if losses else float("inf") if wins else 0.0
+    profit_factor = float(sum(wins) / sum(losses)) if losses else (None if wins else 0.0)
 
     return PerformanceMetrics(
         total_return=total_return,

@@ -2,6 +2,8 @@
 __pycache__/
 .pytest_cache/
 backend/cache/
+backend/backend/
+backend/pytest-cache-files-*/
 frontend/.next/
 frontend/node_modules/
 backend/*.log

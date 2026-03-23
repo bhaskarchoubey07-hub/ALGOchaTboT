@@ -64,7 +64,7 @@ class PerformanceMetrics(BaseModel):
     max_drawdown: float
     win_rate: float
     total_trades: int
-    profit_factor: float
+    profit_factor: float | None
 
 
 class BacktestResponse(BaseModel):

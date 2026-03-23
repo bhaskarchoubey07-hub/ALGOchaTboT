@@ -19,6 +19,7 @@ export function LivePaperTradingPanel({ initialPortfolio, initialStatus }: LiveP
   const [connectionState, setConnectionState] = useState("disconnected");
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const readyForOrders = status.active && status.latest_price !== null;
 
   useEffect(() => {
     const socket = new WebSocket(buildWebSocketUrl("/api/portfolio/ws/paper-trading"));
@@ -41,9 +42,13 @@ export function LivePaperTradingPanel({ initialPortfolio, initialStatus }: LiveP
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data) as {
         type: string;
+        message?: string;
         status?: LivePaperTradingStatus;
         portfolio?: PortfolioResponse;
       };
+      if (message.type === "error" && message.message) {
+        setError(message.message);
+      }
       if (message.status) {
         setStatus(message.status);
         setPortfolio(message.status.portfolio);
@@ -182,13 +187,16 @@ export function LivePaperTradingPanel({ initialPortfolio, initialStatus }: LiveP
             <button className="button-secondary" onClick={stopSession}>
               Stop Session
             </button>
-            <button className="button-buy" onClick={() => placeTrade("BUY")}>
+            <button className="button-buy" onClick={() => placeTrade("BUY")} disabled={!readyForOrders}>
               Paper Buy
             </button>
-            <button className="button-sell" onClick={() => placeTrade("SELL")}>
+            <button className="button-sell" onClick={() => placeTrade("SELL")} disabled={!readyForOrders}>
               Paper Sell
             </button>
           </div>
+          {!readyForOrders && status.active ? (
+            <div className="warning">Waiting for the first live quote before enabling order entry.</div>
+          ) : null}
           {error ? <div className="negative">{error}</div> : null}
         </div>
       </div>

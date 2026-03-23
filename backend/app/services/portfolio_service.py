@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
@@ -9,7 +9,7 @@ from app.models.orm import PortfolioSnapshotORM, TradeORM
 class PortfolioService:
     def __init__(self):
         self.last_snapshot = PortfolioSnapshot(
-            as_of=datetime.utcnow(),
+            as_of=datetime.now(timezone.utc),
             cash=100000.0,
             equity=100000.0,
             realized_pnl=0.0,

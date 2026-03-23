@@ -38,26 +38,32 @@ class Backtester:
             current_ts = timestamp.to_pydatetime()
             price = float(row["close"])
             signal: SignalRecord | None = signal_map.get(current_ts)
+            open_position = trader.state.positions.get(symbol)
+            has_position = open_position is not None and open_position.quantity > 0
 
             if active_entry_price is not None:
                 if stop_loss is not None and price <= active_entry_price * (1 - stop_loss):
                     trade = trader.execute_sell(symbol, current_ts, price, reason="stop_loss")
                     if trade:
                         active_entry_price = None
+                        has_position = False
                 elif take_profit is not None and price >= active_entry_price * (1 + take_profit):
                     trade = trader.execute_sell(symbol, current_ts, price, reason="take_profit")
                     if trade:
                         active_entry_price = None
+                        has_position = False
 
-            if signal and signal.signal == "BUY":
+            if signal and signal.signal == "BUY" and not has_position:
                 allocation = trader.state.cash * position_size
                 trade = trader.execute_buy(symbol, current_ts, price, allocation_cash=allocation, reason="signal_buy")
                 if trade:
                     active_entry_price = price
-            elif signal and signal.signal == "SELL":
+                    has_position = True
+            elif signal and signal.signal == "SELL" and has_position:
                 trade = trader.execute_sell(symbol, current_ts, price, reason="signal_sell")
                 if trade:
                     active_entry_price = None
+                    has_position = False
 
             snapshot = trader.snapshot({symbol: price}, current_ts)
             equity_curve.append(

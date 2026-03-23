@@ -41,6 +41,27 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+## Automated Tests
+
+```bash
+cd backend
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pytest
+```
+
+The tests mock market data and live quotes so they remain stable and do not depend on external APIs.
+
+## Smoke Test
+
+Run the API locally first, then execute:
+
+```bash
+python scripts/smoke_test.py --base-url http://127.0.0.1:8000
+```
+
+This validates health, market data, strategy execution, backtesting, and live paper-trading endpoints against a running server.
+
 Optional environment variables:
 
 ```env
